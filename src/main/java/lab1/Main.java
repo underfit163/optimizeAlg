@@ -1,13 +1,14 @@
+package lab1;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-
 public class Main {
     public static void main(String[] args) {
         int[] arr1 = new int[10_000_000];
-        int[] arr2 = new int[10_000_000];
+        int[] arr2 = new int[10_000_000];//6404 5162
         Random random = new Random();
         System.out.println("Start");
         for (int i = 0; i < arr1.length; i++) {
@@ -30,7 +31,7 @@ public class Main {
 
 //        int[] arr2 = {0, 1, 2, 3, 4, 13, 13, 14, 26, 39, 1, 15, 13};
 //        int[] arr1 = {1, 2, 3, 45, 6, 7, 8, 8, 9, 9, 5, 2, 5, 5, 6, 7, 8};
-//        MySet<Integer> mySet = new MySet<>(arr2.length);
+//        example.MySet<Integer> mySet = new example.MySet<>(arr2.length);
 //        for (int i = 0; i < arr2.length; i++) {
 //            mySet.addVal(arr2[i]);
 //        }
@@ -45,12 +46,12 @@ public class Main {
 //        System.out.println(mySet.contains(0));
     }
 
-    //Задание: Меняем реализацию на MySet<T> (класс) реализовать максимально эффективно
+    //Задание: Меняем реализацию на example.MySet<T> (класс) реализовать максимально эффективно
     public static int[] getNewMas(int[] arr1, int[] arr2) {
         if (arr1.length > arr2.length) {
             return getNewMas(arr2, arr1);
         }
-        Set<Integer> set1 = new HashSet<>(arr1.length);//Замена на MySet
+        Set<Integer> set1 = new HashSet<>(arr1.length);//Замена на example.MySet
 
         int[] a = new int[arr2.length];
 
@@ -67,7 +68,7 @@ public class Main {
         return Arrays.copyOf(a, k);
     }
 
-    //Задание: Меняем реализацию на MySet<T> (класс) реализовать максимально эффективно
+    //Задание: Меняем реализацию на example.MySet<T> (класс) реализовать максимально эффективно
     public static int[] getNewMasMySet(int[] arr1, int[] arr2) {
         if (arr1.length > arr2.length) {
             return getNewMasMySet(arr2, arr1);

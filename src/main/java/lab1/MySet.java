@@ -1,3 +1,5 @@
+package lab1;
+
 import java.util.Arrays;
 
 public class MySet<T> {
@@ -21,7 +23,7 @@ public class MySet<T> {
 
     public void addVal(T val) {
         int idx = Math.abs((Integer) val) % values.length;
-        addNoRecursive(val, idx);
+        addRecursive(val, idx);
     }
 
     private void addRecursive(T val, int idx) {
@@ -66,7 +68,7 @@ public class MySet<T> {
 
     public boolean contains(T val) {
         int idx = Math.abs((Integer) val) % values.length;
-        return containsNoRecursive(val, idx);
+        return containsRecursive(val, idx);
     }
 
     private boolean containsRecursive(T val, int idx) {
