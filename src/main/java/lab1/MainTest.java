@@ -16,11 +16,11 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 2, jvmArgs = {"-Xms4G", "-Xmx4G"})
-@Warmup(iterations = 1)
-@Measurement(iterations = 1)
+@Warmup(iterations = 2)
+@Measurement(iterations = 8)
 public class MainTest {
 
-    public static final int SIZE = 50_000_000;
+    public static final int SIZE = 10_000_000;
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
