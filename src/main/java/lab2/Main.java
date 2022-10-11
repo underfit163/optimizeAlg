@@ -23,6 +23,9 @@ public class Main {
         System.out.println(arrayStack31.pop(2));
         System.out.println("Информация о стеке после pop:");
         arrayStack31.printStack();
+        System.out.println(arrayStack31.isEmpty(1));
+        System.out.println(arrayStack31.isEmpty(2));
+        System.out.println(arrayStack31.isEmpty(3));
         arrayStack31.push(3, 3);
         arrayStack31.push(2, 1);
         arrayStack31.push(1, 0);

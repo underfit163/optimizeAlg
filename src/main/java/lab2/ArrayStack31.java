@@ -3,21 +3,15 @@ package lab2;
 import java.util.Arrays;
 
 public class ArrayStack31 {
-    int[] stackSize = {1, 1, 1};
-    int[] buffer = new int[stackSize.length];
-    int[] stackPointer = {-1, -1, -1};
+    int[] stackSize = {0, 0, 0};
+    int[] buffer = new int[0];
 
-    public void push(int stackNum, int value) throws Exception {
-        /* Проверяем, есть ли пространство */
-        if (stackPointer[stackNum - 1] + 1 >= stackSize[stackNum - 1]) {
-            buffer = Arrays.copyOf(buffer, buffer.length + 1);
-            stackSize[stackNum - 1] += 1;
-            System.arraycopy(buffer, sumLen(stackNum) - 1, buffer, sumLen(stackNum), buffer.length - sumLen(stackNum));
-        }
-        /* находим индекс верхнего элемента массива,
-         * и увеличиваем указатель стека */
+    public void push(int stackNum, int value) {
+        buffer = Arrays.copyOf(buffer, buffer.length + 1);
+        stackSize[stackNum - 1] += 1;
+        System.arraycopy(buffer, sumLen(stackNum) - 1, buffer, sumLen(stackNum), buffer.length - sumLen(stackNum));
+        /*находим индекс верхнего элемента массива*/
         int index = sumLen(stackNum) - 1;
-        stackPointer[stackNum - 1] += 1;
         buffer[index] = value;
     }
 
@@ -37,7 +31,6 @@ public class ArrayStack31 {
         int value = buffer[index];
 
         stackSize[stackNum - 1] -= 1;
-        stackPointer[stackNum - 1] -= 1;
         System.arraycopy(buffer, index + 1, buffer, index, buffer.length - (index + 1));
         buffer = Arrays.copyOf(buffer, buffer.length - 1);
 
@@ -54,7 +47,6 @@ public class ArrayStack31 {
     }
 
     public void printStack() {
-        System.out.println("stackPointer: " + Arrays.toString(stackPointer));
         System.out.println("stackSize: " + Arrays.toString(stackSize));
         System.out.println("array: " + Arrays.toString(buffer));
     }
