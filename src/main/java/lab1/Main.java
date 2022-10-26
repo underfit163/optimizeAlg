@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
-        int[] arr1 = new int[10_000_000];
-        int[] arr2 = new int[10_000_000];
+        int[] arr1 = new int[50_000_000];
+        int[] arr2 = new int[50_000_000];
         Random random = new Random();
         System.out.println("Start");
         for (int i = 0; i < arr1.length; i++) {
