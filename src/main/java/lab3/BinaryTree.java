@@ -53,15 +53,12 @@ public class BinaryTree {
         int k = 1;
         int level = 1;
         Map<Integer, List<Integer>> treeLevelEl = new HashMap<>();
-
         while (!nodes.isEmpty()) {
             Node node = nodes.remove();
-
             //System.out.print(" " + node.getValue());
-
             if (node.getLeft() != null) {
                 nodes.add(node.getLeft());
-               addLevelMap(level, node.getLeft().getValue(), treeLevelEl);
+                addLevelMap(level, node.getLeft().getValue(), treeLevelEl);
             }
 
             if (node.getRight() != null) {
