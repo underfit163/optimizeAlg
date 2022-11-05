@@ -75,4 +75,34 @@ public class BinaryTree {
     public Node getRoot() {
         return root;
     }
+
+    public List<List<Integer>> bstSequences(Node tree) {
+        List<Node> list = new ArrayList<>();
+        list.add(tree);
+        return bstSequences(list);
+    }
+
+    public List<List<Integer>> bstSequences(List<Node> roots) {
+        List<List<Integer>> output = new ArrayList<>();
+        for(var i : roots) {
+            List<Node> choices = new ArrayList<>(roots);
+            Node root = choices.remove(choices.indexOf(i));
+            if(root.getLeft() != null) choices.add(root.getLeft());
+            if(root.getRight() != null)  choices.add(root.getRight());
+
+            if(choices.size() > 0) {
+                for(var s : bstSequences(choices)) {
+                    List<Integer> list = new ArrayList<>();
+                    list.add(root.getValue());
+                    list.addAll(s);
+                    output.add(list);
+                }
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(root.getValue());
+                output.add(list); // end recursion
+            }
+        }
+        return output;
+    }
 }

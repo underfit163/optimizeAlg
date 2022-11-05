@@ -1,6 +1,7 @@
 package lab3;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /*9. Бинарное дерево поиска было создано обходом массива слева направо и вставкой каждого элемента.
 Для заданного бинарного дерева поиска с разными элементами выведите все возможные массивы,
@@ -28,12 +29,15 @@ public class Main {
         bt.addNode(2);
         bt.addNode(10);
 
-        Map<Integer, List<Integer>> map = new HashMap<>();
-        bt.preOrderTraversal(bt.getRoot(), 0, map);
+        AtomicInteger i = new AtomicInteger();
+        bt.bstSequences(bt.getRoot()).forEach(x -> System.out.println(i.getAndIncrement()+ " " + Arrays.toString(x.toArray())));
 
-        map.forEach((x, y) -> System.out.println(x + ": " + Arrays.toString(y.toArray())));
-        System.out.println("Массивы, которые могли привести к созданию этого дерева: ");
-        recurseAddVals(new ArrayList<>(), 0, map);
+//        Map<Integer, List<Integer>> map = new HashMap<>();
+//        bt.preOrderTraversal(bt.getRoot(), 0, map);
+//
+//        map.forEach((x, y) -> System.out.println(x + ": " + Arrays.toString(y.toArray())));
+//        System.out.println("Массивы, которые могли привести к созданию этого дерева: ");
+//        recurseAddVals(new ArrayList<>(), 0, map);
     }
 
 
