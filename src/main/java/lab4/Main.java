@@ -5,7 +5,7 @@ package lab4;
 public class Main {
 
     public static void main(String[] args) {
-        int n = 13948;
+        int n = 193;
         System.out.println(n + ": " + Integer.toBinaryString(n));
         int max = getNext(n);
         System.out.println(max + ": " + Integer.toBinaryString(max));
