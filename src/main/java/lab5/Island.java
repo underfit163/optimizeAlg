@@ -12,22 +12,30 @@ public class Island {
     }
 
     public int outIsland() {
+
+        //people.stream().sorted(Comparator.comparing(Human::isBlueEyes));
+        int minBlueCount = 0;
         Human seeHuman;
         for (int i = 0; i < people.size(); i++) {
             Human human = people.get(i);
             for (int j = 0; j < people.size(); j++) {
                 if (i != j) {
-                    seeHuman = people.get(i);
+                    seeHuman = people.get(j);
                     if (seeHuman.isBlueEyes()) {
-                        human.getWithBlueEyes().add(seeHuman);
-                    }
-                    if (human.getWithBlueEyes().size() == 0) {
-                        return 1;
+                        human.setBlueManCount(human.getBlueManCount() + 1);
                     }
                 }
             }
 
+            if (human.getBlueManCount() == 0) {
+                return 1;
+            } else if (i == 0) {
+                minBlueCount = human.getBlueManCount();
+            } else if (minBlueCount > human.getBlueManCount()) {
+                minBlueCount = human.getBlueManCount();
+            }
+
         }
-        return -1;
+        return minBlueCount + 1;
     }
 }

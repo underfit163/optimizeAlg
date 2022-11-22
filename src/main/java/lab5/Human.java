@@ -1,18 +1,12 @@
 package lab5;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Human {
     private boolean blueEyes;
-    private boolean onIsland;
 
-    private List<Human> withBlueEyes;
+    private int blueManCount;
 
     public Human(boolean blueEyes) {
         this.blueEyes = blueEyes;
-        this.onIsland = true;
-        this.withBlueEyes = new ArrayList<>();
     }
 
     public boolean isBlueEyes() {
@@ -23,19 +17,18 @@ public class Human {
         this.blueEyes = blueEyes;
     }
 
-    public boolean isOnIsland() {
-        return onIsland;
+    public int getBlueManCount() {
+        return blueManCount;
     }
 
-    public void setOnIsland(boolean onIsland) {
-        this.onIsland = onIsland;
+    public void setBlueManCount(int blueManCount) {
+        this.blueManCount = blueManCount;
     }
 
-    public List<Human> getWithBlueEyes() {
-        return withBlueEyes;
-    }
-
-    public void setWithBlueEyes(List<Human> withBlueEyes) {
-        this.withBlueEyes = withBlueEyes;
+    @Override
+    public String toString() {
+        return "Human{" +
+                "blueEyes=" + blueEyes +
+                '}';
     }
 }
