@@ -1,6 +1,8 @@
 package lab5;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Island {
     private int day;
@@ -12,9 +14,8 @@ public class Island {
     }
 
     public int outIsland() {
-
-        //people.stream().sorted(Comparator.comparing(Human::isBlueEyes));
-        int minBlueCount = 0;
+        //people.stream().sorted(Comparator.comparing(Human::isBlueEyes).reversed()).forEach(x-> System.out.println(x.isBlueEyes()));
+        int minBlueCount = 1;
         Human seeHuman;
         for (int i = 0; i < people.size(); i++) {
             Human human = people.get(i);
@@ -26,16 +27,15 @@ public class Island {
                     }
                 }
             }
-
             if (human.getBlueManCount() == 0) {
-                return 1;
+                return minBlueCount;
             } else if (i == 0) {
                 minBlueCount = human.getBlueManCount();
-            } else if (minBlueCount > human.getBlueManCount()) {
-                minBlueCount = human.getBlueManCount();
-            }
-
+            } else if (minBlueCount < human.getBlueManCount())
+                return minBlueCount + 1;
+            else if (minBlueCount > human.getBlueManCount())
+                return human.getBlueManCount() + 1;
         }
-        return minBlueCount + 1;
+        return 1;
     }
 }

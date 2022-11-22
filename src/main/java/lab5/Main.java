@@ -17,12 +17,12 @@ public class Main {
     public static void main(String[] args) {
         Random random = new Random();
         List<Human> people = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             Human human = new Human(random.nextBoolean());
             people.add(human);
             System.out.println(human);
         }
         Island island = new Island(people);
-        System.out.println(island.outIsland());
+        System.out.println(island.outIsland() + " дней потребуется, чтобы синеглазые улетели с острова");
     }
 }
