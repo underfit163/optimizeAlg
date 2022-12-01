@@ -1,4 +1,4 @@
-package lab5;
+package lab5.var1;
 
 import java.util.ArrayList;
 import java.util.List;

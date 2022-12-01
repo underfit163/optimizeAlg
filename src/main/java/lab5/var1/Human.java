@@ -1,4 +1,4 @@
-package lab5;
+package lab5.var1;
 
 public class Human {
     private boolean blueEyes;

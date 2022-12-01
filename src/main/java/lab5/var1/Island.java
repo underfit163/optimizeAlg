@@ -1,8 +1,6 @@
-package lab5;
+package lab5.var1;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Island {
     private int day;
@@ -29,9 +27,9 @@ public class Island {
             }
             if (human.getBlueManCount() == 0) {
                 return minBlueCount;
-            } else if (i == 0) {
+            } else if (i == 0)
                 minBlueCount = human.getBlueManCount();
-            } else if (minBlueCount < human.getBlueManCount())
+             else if (minBlueCount < human.getBlueManCount())
                 return minBlueCount + 1;
             else if (minBlueCount > human.getBlueManCount())
                 return human.getBlueManCount() + 1;
