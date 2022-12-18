@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- Имеется центр обработки звонков с тремя уровнями сотрудников: оператор, менеджер и директор.
+ 2. Имеется центр обработки звонков с тремя уровнями сотрудников: оператор, менеджер и директор.
  Входящий телефонный звонок адресуется свободному оператору. Если оператор не может обработать звонок,
  он автоматически перенаправляется менеджеру. Если менеджер занят, то звонок перенаправляется директору.
  Разработайте классы и структуры данных для этой задачи.
  Реализуйте метод dispatchCall(), который перенаправляет звонок первому свободному сотруднику.
  */
 public class Main {
-
-    public static void main(String[] args) {
+    //очередь звонков реализовать
+    public static void main(String[] args) throws InterruptedException {
         Employee director = new Director(false);
         Employee manager = new Manager(false, director);
 
@@ -24,9 +24,9 @@ public class Main {
         }
         CallCenter callCenter = new CallCenter(operators);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 8; i++) {
             System.out.println("Поступает звонок:");
-            callCenter.call();
+            callCenter.call("Звонок " + (i + 1));
             System.out.println();
         }
     }

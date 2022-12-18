@@ -18,12 +18,14 @@ public class Operator implements Employee {
     }
 
     @Override
-    public void dispatchCall() {
+    public boolean dispatchCall() {
         if (isBusy) {
             System.out.println("Извините, оператор не может обработать ваш звонок, перенаправляю вас к менеджеру...");
-            employee.dispatchCall();
+            return employee.dispatchCall();
         } else {
             System.out.println("Здравствуйте, я оператор, готов ответить на ваши вопросы...");
+            setBusy(true);
+            return true;
         }
     }
 }

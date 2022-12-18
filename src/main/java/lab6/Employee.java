@@ -5,5 +5,5 @@ public interface Employee {
 
     void setBusy(boolean busy);
 
-    void dispatchCall();
+    boolean dispatchCall();
 }

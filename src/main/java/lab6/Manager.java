@@ -1,7 +1,7 @@
 package lab6;
 
 public class Manager implements Employee {
-    private Employee employee;
+    private final Employee employee;
     private boolean isBusy;
 
     public Manager(boolean isBusy, Employee employee) {
@@ -18,13 +18,14 @@ public class Manager implements Employee {
     }
 
     @Override
-    public void dispatchCall() {
+    public boolean dispatchCall() {
         if (isBusy) {
             System.out.println("Извините, менеджер не может вам ответить на данный момент, перенаправляю вас к директору...");
-            employee.dispatchCall();
+            return employee.dispatchCall();
         } else {
             System.out.println("Здравствуйте, я менеджер, готов ответить на ваши вопросы...");
             setBusy(true);
+            return true;
         }
     }
 }

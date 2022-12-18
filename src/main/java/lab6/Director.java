@@ -16,11 +16,14 @@ public class Director implements Employee {
     }
 
     @Override
-    public void dispatchCall() {
+    public boolean dispatchCall() {
         if (isBusy) {
             System.out.println("Извините, директор не может вам ответить на данный момент.");
+            return false;
         } else {
             System.out.println("Здравствуйте, я директор, готов ответить на ваши вопросы...");
+            setBusy(true);
+            return true;
         }
     }
 }
