@@ -1,7 +1,7 @@
 package lab6;
 
 public class Operator implements Employee {
-    private Employee employee;
+    private final Employee employee;
     private boolean isBusy;
 
     public Operator(boolean isBusy, Employee employee) {
