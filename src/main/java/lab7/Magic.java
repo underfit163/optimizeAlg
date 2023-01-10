@@ -16,9 +16,11 @@ public class Magic {
         if (midIndex == midValue) {
             return midIndex;
         } else if(array[midIndex] > midIndex) {
-            return magicIndexV1(array, start, midIndex-1);
+            int leftIndex = Math.min(midIndex - 1, midValue);
+            return magicIndexV1(array, start, leftIndex);
         } else {
-            return magicIndexV1(array, midIndex + 1, end);
+            int rightIndex = Math.max(midIndex + 1, midValue);
+            return magicIndexV1(array, rightIndex, end);
         }
     }
 
@@ -38,17 +40,13 @@ public class Magic {
             return midIndex;
         }
 
-        /* поиск влево */
         int leftIndex = Math.min(midIndex - 1, midValue);
         int left = magicIndexV2(array, start, leftIndex);
         if (left >= 0) {
             return left;
         }
 
-        /* поиск вправо */
         int rightIndex = Math.max(midIndex + 1, midValue);
         return magicIndexV2(array, rightIndex, end);
     }
-
-
 }

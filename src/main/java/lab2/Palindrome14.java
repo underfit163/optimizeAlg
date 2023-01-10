@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Palindrome14 {
-
     public boolean test14(String s) {
         s = s.toLowerCase().trim().replaceAll(" ", "");
         StringBuilder stringBuilder = new StringBuilder(s);

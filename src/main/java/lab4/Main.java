@@ -3,7 +3,6 @@ package lab4;
 //Для заданного положительного числа выведите ближайшие наименьшее и наибольшее числа,
 // которые имеют такое же количество единичных битов в двоичном представлении.
 public class Main {
-
     public static void main(String[] args) {
         int n = 193;
         System.out.println(n + ": " + Integer.toBinaryString(n));
@@ -45,7 +44,6 @@ public class Main {
 
         return n;
     }
-
 
     //Большее число, меньше, чем n
     public static int getPrev(int n) {

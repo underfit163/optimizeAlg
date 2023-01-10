@@ -10,10 +10,10 @@ public class Main {
         Magic magic = new Magic();
 //                               0   1  2  3  4  5  6  7   8   9  10
         int[] array = new int[]{-1,  0, 1, 3, 5, 6, 7, 9, 10, 12, 15};
-        System.out.println(magic.magicIndexV1(array));
+        System.out.println("Волшебный индекс без повторов: " + magic.magicIndexV1(array));
 
 //                                0   1  2  3  4  5   6   7   8   9  10
         int[] array2 = new int[]{-1,  0, 1, 2, 3, 8,  9,  9, 10, 10, 10};
-        System.out.println(magic.magicIndexV2(array2));
+        System.out.println("Волшебный индекс с повторами: "+ magic.magicIndexV2(array2));
     }
 }

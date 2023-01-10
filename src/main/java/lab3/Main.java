@@ -18,7 +18,7 @@ public class Main {
         arrs = new ArrayList<>();
         BinaryTree bt = new BinaryTree();
 
-        bt.addNode(6);
+/*        bt.addNode(6);
         bt.addNode(4);
         bt.addNode(8);
         bt.addNode(3);
@@ -27,7 +27,10 @@ public class Main {
         bt.addNode(7);
         bt.addNode(9);
         bt.addNode(2);
-        bt.addNode(10);
+        bt.addNode(10);*/
+        bt.addNode(2);
+        bt.addNode(1);
+        bt.addNode(3);
 
         AtomicInteger i = new AtomicInteger();
         bt.bstSequences(bt.getRoot()).forEach(x -> System.out.println(i.getAndIncrement()+ " " + Arrays.toString(x.toArray())));

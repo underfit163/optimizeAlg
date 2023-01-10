@@ -2,9 +2,9 @@ package paractic;
 //Задача про мальчика 32/2 = 11, 36/3 = 12, когда то правильно, когда то нет, 37/3 = 12, 47/3 = 12
 //Даны 2 числа n и k, нужно посчитать в скольки примерах от 1 до n, при попытке делить на k = [1..9]
 //количество ответов мальчика совпадет с правильными
-public class Task {
+public class BoyTask {
     public static void main(String[] args) {
-        long n = 512;
+        long n = 412;
         int k = 2;
 
         int[] digits = new int[19];
@@ -20,7 +20,7 @@ public class Task {
     }
 
     private static long calc(int[] digits, int k, int idx) {
-        long count = (digits[idx - 1] - 1) / k + 1;
+        long count = (digits[idx - 1] - 1) / k + 1;//0 3 6 9
         for (int j = idx - 2; j >= 0; j--) {
             count *= 9 / k + 1;
         }
