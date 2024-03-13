@@ -2,8 +2,9 @@ package lab2;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Palindrome14 palindrome14 = new Palindrome14();
-        System.out.println(palindrome14.test14v2("tact coa"));
+//        Palindrome14 palindrome14 = new Palindrome14();
+//        System.out.println(palindrome14.test14v2("tact coa"));
+//
 
        /* ArrayStack31 arrayStack31 = new ArrayStack31();
         arrayStack31.push(3, 3);
