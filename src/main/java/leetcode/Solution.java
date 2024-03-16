@@ -19,7 +19,8 @@ public class Solution {
         //System.out.println(Arrays.toString(solution.plusOne(new int[]{9})));
         //System.out.println(solution.spiralOrder(new int[][]{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}));
         //System.out.println(solution.generate(5));
-        System.out.println(solution.longestCommonPrefix(new String[]{"a"}));
+        //System.out.println(solution.longestCommonPrefix(new String[]{"a"}));
+        System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
     }
 
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -494,8 +495,8 @@ public class Solution {
         int allSum = (1 + n) * n / 2;
         int x = -1;
         for (int i = 0; i < n; i++) {
-            if((i+1) == (allSum - 2 * (1 + i) * i / 2)) {
-                return i+1;
+            if ((i + 1) == (allSum - 2 * (1 + i) * i / 2)) {
+                return i + 1;
             }
         }
         return x;
@@ -509,18 +510,76 @@ public class Solution {
         StringBuilder prefixStr = new StringBuilder();
         int minLenStr = strs[0].length();
         for (String str : strs) {
-            if(str.length() <= minLenStr) {
+            if (str.length() <= minLenStr) {
                 prefixStr = new StringBuilder(str);
                 minLenStr = str.length();
             }
         }
         for (int i = 0; i < strs.length; i++) {
-            if(prefixStr.length() != 0 && !strs[i].startsWith(prefixStr.toString())) {
-                prefixStr.deleteCharAt(prefixStr.length()-1);
+            if (prefixStr.length() != 0 && !strs[i].startsWith(prefixStr.toString())) {
+                prefixStr.deleteCharAt(prefixStr.length() - 1);
                 i--;
             }
         }
         return prefixStr.toString();
     }
-}
 
+    public int numSubarraysWithSum(int[] nums, int goal) {
+        int count = 0;
+        int sum = 0;
+
+        Map<Integer, Integer> sumCount = new HashMap<>();
+        sumCount.put(0, 1); // Начальное значение суммы 0 встречается 1 раз
+
+        for (int num : nums) {
+            sum += num;
+            count += sumCount.getOrDefault(sum - goal, 0); // Подсчет количества субмассивов с целевой суммой
+            sumCount.put(sum, sumCount.getOrDefault(sum, 0) + 1); // Обновление счетчика сумм
+        }
+        return count;
+    }
+
+    public int[] productExceptSelf(int[] nums) {
+        int[] result = new int[nums.length];
+        int product = 1;
+
+        int preffixProduct = 1;
+        for (int i = 0; i < result.length; i++) {
+            result[i] = preffixProduct;
+            preffixProduct *= nums[i];
+        }
+
+        int suffixProduct = 1;
+        for (int i = result.length - 1; i >= 0; i--) {
+            result[i] *= suffixProduct;
+            suffixProduct *= nums[i];
+        }
+        return result;
+    }
+
+    public int findMaxLength(int[] nums) {
+        //[0, 1] countZero == countOne, maxLen -> nums.length
+
+        //[1, 1, 1, 0, 1, 0, 0, 1]
+        //[1, 2, 3, 2, 3, 2, 1, 2]
+
+        //[0, 0, 0, 1, 1, 0]
+        //[-1,-2,-3,-2,-1,-2]
+        int maxLen = 0;
+        int count = 0;
+
+        Map<Integer, Integer> sumAndI = new HashMap<>();
+        sumAndI.put(0, -1);
+
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == 0) count--;
+            else count++;
+
+            if (sumAndI.containsKey(count)) {
+                maxLen = Math.max(maxLen, i - sumAndI.get(count));
+            } else sumAndI.put(count, i);
+        }
+
+        return maxLen;
+    }
+}
