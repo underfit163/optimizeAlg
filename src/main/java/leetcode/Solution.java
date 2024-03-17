@@ -582,4 +582,37 @@ public class Solution {
 
         return maxLen;
     }
+
+    public int arrayPairSum(int[] nums) {
+        Arrays.sort(nums);
+        int maxSum = 0;
+        for (int i = 0; i < nums.length; i += 2) {
+            maxSum += nums[i];
+
+        }
+        return maxSum;
+    }
+
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        List<int[]> result = new ArrayList<>();
+        int l = 0;
+        int r = intervals.length;
+        while (l < r && newInterval[0] > intervals[l][1]) {
+            result.add(intervals[l]);
+            l++;
+        }
+
+        while (l < r && newInterval[1] >= intervals[l][0]) {
+            newInterval[0] = Math.min(newInterval[0], intervals[l][0]);
+            newInterval[1] = Math.max(newInterval[1], intervals[l][1]);
+            l++;
+        }
+        result.add(newInterval);
+
+        while (l < r) {
+            result.add(intervals[l]);
+            l++;
+        }
+        return result.toArray(new int[result.size()][]);
+    }
 }
