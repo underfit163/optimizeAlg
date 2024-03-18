@@ -20,7 +20,8 @@ public class Solution {
         //System.out.println(solution.spiralOrder(new int[][]{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}));
         //System.out.println(solution.generate(5));
         //System.out.println(solution.longestCommonPrefix(new String[]{"a"}));
-        System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
+        //System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
+        System.out.println(solution.findMinArrowShots(new int[][]{{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
     }
 
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -614,5 +615,25 @@ public class Solution {
             l++;
         }
         return result.toArray(new int[result.size()][]);
+    }
+
+    public int findMinArrowShots(int[][] points) {
+        // [[10,16],[2,8],[1,6],[7,12]]
+        // [[1,6], [2,8], [7,12], [10,16]]
+        // [[2,6],[10,12]]
+
+        // [[1,17], [2,8], [7,12], [10,16]]
+        Arrays.sort(points, Comparator.comparingInt(x -> x[0]));
+        int union = points[0][1];
+        int result = 1;
+        for (int i = 1; i < points.length; i++) {
+            if (union >= points[i][0]) {
+                union = Math.min(union, points[i][1]);
+            } else {
+                union = points[i][1];
+                result++;
+            }
+        }
+        return result;
     }
 }
