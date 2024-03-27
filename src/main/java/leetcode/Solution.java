@@ -21,7 +21,8 @@ public class Solution {
         //System.out.println(solution.generate(5));
         //System.out.println(solution.longestCommonPrefix(new String[]{"a"}));
         //System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
-        System.out.println(solution.findMinArrowShots(new int[][]{{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
+        //System.out.println(solution.findMinArrowShots(new int[][]{{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
+        System.out.println(solution.findDuplicate(new int[]{3, 2, 3, 1}));
     }
 
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -635,5 +636,101 @@ public class Solution {
             }
         }
         return result;
+    }
+
+    public int findDuplicate(int[] nums) {
+        int slow = nums[0];
+        int fast = nums[0];
+        do { // we are sure that at least one duplicate is there
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } while (slow != fast);
+        // find the head of loop
+        fast = nums[0];
+        while (slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        return fast;
+    }
+
+    public List<Integer> findDuplicates(int[] nums) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++) {
+            int val = Math.abs(nums[i]);
+            if (nums[val - 1] < 0) {
+                result.add(val);
+            } else {
+                nums[val - 1] *= -1;
+            }
+        }
+        return result;
+    }
+
+    public int[] twoSum(int[] numbers, int target) {
+        int i = 0;
+        int j = numbers.length - 1;
+        int[] result = new int[2];
+        while (i < j) {
+            if((target - numbers[i]) == numbers[j]) {
+                result[0] = i + 1;
+                result[1] = j + 1;
+                break;
+            }
+            else if((numbers[j] + numbers[i]) > target) {
+                j--;
+            } else if((numbers[j] + numbers[i]) < target) {
+                i++;
+            }
+        }
+        return result;
+    }
+
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        //[10]
+        //count = 1
+        //[10, 5]
+        //count = 1 + 2 = 3
+        //[10, 5, 2]
+        //count = 3 + 2 = 5
+        //[10, 5, 2, 6]
+        //count = 5 + 3 = 8
+        if (k <= 1) return 0;
+        int count = 0;
+        int product = 1;
+        int left = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            product *= nums[right];
+            while (product >= k) {
+                product /= nums[left++];
+            }
+            count += right - left + 1;
+        }
+        return count;
+    }
+
+    public int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+
+        // Поместим каждое положительное число в его "правильное" место в массиве
+        for (int i = 0; i < n; i++) {
+            while (nums[i] > 0 && nums[i] <= n && nums[nums[i] - 1] != nums[i]) {
+                // Переставляем nums[i] на его правильное место
+                int temp = nums[nums[i] - 1];
+                nums[nums[i] - 1] = nums[i];
+                nums[i] = temp;
+            }
+        }
+
+        // Найдем первый элемент, не удовлетворяющий условию nums[i] = i + 1
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != i + 1) {
+                return i + 1;
+            }
+        }
+
+        // Если все числа от 1 до n присутствуют в массиве, то наименьшее недостающее число - n + 1
+        return n + 1;
     }
 }
