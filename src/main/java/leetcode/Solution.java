@@ -672,14 +672,13 @@ public class Solution {
         int j = numbers.length - 1;
         int[] result = new int[2];
         while (i < j) {
-            if((target - numbers[i]) == numbers[j]) {
+            if ((target - numbers[i]) == numbers[j]) {
                 result[0] = i + 1;
                 result[1] = j + 1;
                 break;
-            }
-            else if((numbers[j] + numbers[i]) > target) {
+            } else if ((numbers[j] + numbers[i]) > target) {
                 j--;
-            } else if((numbers[j] + numbers[i]) < target) {
+            } else if ((numbers[j] + numbers[i]) < target) {
                 i++;
             }
         }
@@ -732,5 +731,23 @@ public class Solution {
 
         // Если все числа от 1 до n присутствуют в массиве, то наименьшее недостающее число - n + 1
         return n + 1;
+    }
+
+    public int maxSubarrayLength(int[] nums, int k) {
+        //[1,2,3,1,2,3,1,2]
+        Map<Integer, Integer> countElement = new HashMap<>();
+        int maxLen = 0;
+        int start = 0;
+        for (int end = 0; end < nums.length; end++) {
+            int num = nums[end];
+            countElement.put(num, countElement.getOrDefault(num, 0) + 1);
+            while (start <= end && countElement.get(num) > k) {
+                int startNum = nums[start];
+                countElement.put(startNum, countElement.get(startNum) - 1);
+                start++;
+            }
+            maxLen = Math.max(maxLen, end - start + 1);
+        }
+        return maxLen;
     }
 }
