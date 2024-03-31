@@ -750,4 +750,30 @@ public class Solution {
         }
         return maxLen;
     }
+
+    public long countSubarrays(int[] nums, int k) {
+        //[1, 3, 2, 3, 3, 2, 3]
+        //[1, 3, 4, 6]
+        long ans = 0;
+        int left = 0, right = 0, count = 0;
+        int max = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            max = Math.max(nums[i], max);
+        }
+
+        while (right < nums.length || left > right) {
+            if (nums[right] == max) {
+                count++;
+            }
+            while (count >= k) {
+                if (nums[left] == max) {
+                    count--;
+                }
+                left++;
+                ans += nums.length - right;
+            }
+            right++;
+        }
+        return ans;
+    }
 }
