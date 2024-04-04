@@ -22,7 +22,8 @@ public class Solution {
         //System.out.println(solution.longestCommonPrefix(new String[]{"a"}));
         //System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
         //System.out.println(solution.findMinArrowShots(new int[][]{{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
-        System.out.println(solution.findDuplicate(new int[]{3, 2, 3, 1}));
+        //System.out.println(solution.findDuplicate(new int[]{3, 2, 3, 1}));
+        System.out.println(solution.isIsomorphic("abc", "egg"));
     }
 
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -775,5 +776,75 @@ public class Solution {
             right++;
         }
         return ans;
+    }
+
+    public int maxDepth(String s) {
+        int max = 0;
+        int count = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '(') count++;
+            else if (c == ')') count--;
+            max = Math.max(count, max);
+        }
+        return max;
+    }
+
+    public int lengthOfLastWord(String s) {
+        int len = 0;
+        int k = s.length() - 1;
+        while (k >= 0 && s.charAt(k) == ' ') {
+            k--;
+        }
+        while (k >= 0 && s.charAt(k) != ' ') {
+            len++;
+            k--;
+        }
+
+        return len;
+    }
+
+//    public boolean isIsomorphic(String s, String t) {
+//        Map<Character, List<Integer>> sMap = new HashMap<>();
+//        Map<Character, List<Integer>> tMap = new HashMap<>();
+//        //abc
+//        //egg
+//        for (int i = 0; i < s.length(); i++) {
+//            sMap.computeIfAbsent(s.charAt(i), x -> new ArrayList<>()).add(i);
+//        }
+//        for (int i = 0; i < t.length(); i++) {
+//            tMap.computeIfAbsent(t.charAt(i), x -> new ArrayList<>()).add(i);
+//        }
+//        System.out.println(sMap.values());
+//        System.out.println(tMap.values());
+//        return sMap.values().containsAll(tMap.values());
+//        //return sMap.values().equals(tMap.values());
+//    }
+
+    public boolean isIsomorphic(String s, String t) {
+
+        HashMap<Character, Character> mapS2T = new HashMap<>();
+        HashMap<Character, Character> mapT2S = new HashMap<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            char charS = s.charAt(i);
+            char charT = t.charAt(i);
+
+            // Check if there's a mapping for charS in mapS2T and if it maps to the same character in t
+            if (mapS2T.containsKey(charS)) {
+                if (mapS2T.get(charS) != charT) {
+                    return false;
+                }
+            } else { // If no mapping exists, check if charT is already mapped to some other character in mapT2S
+                if (mapT2S.containsKey(charT)) {
+                    return false;
+                }
+
+                // Create new mapping since it's valid
+                mapS2T.put(charS, charT);
+                mapT2S.put(charT, charS);
+            }
+        }
+
+        return true;
     }
 }
