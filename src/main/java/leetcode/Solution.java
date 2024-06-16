@@ -23,7 +23,8 @@ public class Solution {
         //System.out.println(solution.numSubarraysWithSum(new int[]{1, 0, 1, 0, 1}, 2));
         //System.out.println(solution.findMinArrowShots(new int[][]{{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
         //System.out.println(solution.findDuplicate(new int[]{3, 2, 3, 1}));
-        System.out.println(solution.isIsomorphic("abc", "egg"));
+        //System.out.println(solution.isIsomorphic("abc", "egg"));
+        System.out.println(solution.minRemoveToMakeValid("a)b(c)d"));
     }
 
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -846,5 +847,43 @@ public class Solution {
         }
 
         return true;
+    }
+
+    public String minRemoveToMakeValid(String s) {
+        StringBuilder sb = new StringBuilder(s);
+        int open = 0;
+
+        for (int i = 0; i < sb.length(); i++) {
+            if (sb.charAt(i) == '(') open++;
+            else if (sb.charAt(i) == ')') {
+                if (open == 0) {
+                    sb.deleteCharAt(i);
+                    i--;
+                } else open--;
+            }
+        }
+
+        for (int i = sb.length() - 1; i >= 0; i--) {
+            if (open > 0 && sb.charAt(i) == '(') {
+                sb.deleteCharAt(i);
+                open--;
+            }
+        }
+        return sb.toString();
+    }
+
+    public int minSubArrayLen(int target, int[] nums) {
+        int start = 0;
+        int sum = 0;
+        int minSize = Integer.MAX_VALUE;
+
+        for (int end = 0; end < nums.length; end++) {
+            sum += nums[end];
+            while (sum >= target) {
+                minSize = Math.min(end - start + 1, minSize);
+                sum -= nums[start++];
+            }
+        }
+        return minSize == Integer.MAX_VALUE ? 0 : minSize;
     }
 }
