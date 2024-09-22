@@ -90,7 +90,7 @@ public class BinaryTree {
             if(root.getLeft() != null) choices.add(root.getLeft());
             if(root.getRight() != null)  choices.add(root.getRight());
 
-            if(choices.size() > 0) {
+            if(!choices.isEmpty()) {
                 for(var s : bstSequences(choices)) {
                     List<Integer> list = new ArrayList<>();
                     list.add(root.getValue());
