@@ -43,5 +43,4 @@ public class OpenClosePrinciple {
             return shape.calculateArea();
         }
     }
-
 }

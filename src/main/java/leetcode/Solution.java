@@ -1,8 +1,11 @@
 package leetcode;
 
+import org.apache.commons.math3.util.Pair;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 
 public class Solution {
 
@@ -63,10 +66,579 @@ public class Solution {
         //System.out.println(solution.isValid("()"));
         //System.out.println(Arrays.toString(solution.dailyTemperatures(new int[]{73, 74, 75, 71, 69, 72, 76, 73})));
 
-        System.out.println(solution.getRowRecursive(3));
+        //System.out.println(solution.getRowRecursive(3));
+        //Function<Integer, Integer> function = solution.memoize(solution::fibonacci);
+        //System.out.println(function.apply(6));
+        //System.out.println(solution.generateTrees(3))
+        //System.out.println(Arrays.toString(solution.sortArray(new int[]{5, 1, 1, 2, 0, 0})));
+        //System.out.println(solution.generateParenthesisIterative(3));
+        //System.out.println(solution.largestRectangleAreaStack(new int[] {2,1,5,6,2,3}));
+        //System.out.println(solution.largestRectangleArea(new int[]{2, 1, 5, 6, 2, 3}));
+        //System.out.println(solution.permute(new int[]{1, 2, 3}));
+        //System.out.println(solution.letterCombinations(""));
+        System.out.println(solution.getSkyline(new int[][]{
+                {2, 9, 10},
+                {3, 7, 15},
+                {5, 12, 12},
+                {15, 20, 10},
+                {19, 24, 8}
+        }));
     }
 
-    public boolean canConstruct(String ransomNote, String magazine) {
+    public List<List<Integer>> getSkylineDivideAndConquer(int[][] buildings) {
+        if (buildings == null || buildings.length == 0) {
+            return new ArrayList<>();
+        }
+        return mergeSkylines(buildings, 0, buildings.length - 1);
+    }
+
+    // Рекурсивное разбиение массива зданий
+    private List<List<Integer>> mergeSkylines(int[][] buildings, int left, int right) {
+        List<List<Integer>> skyline = new ArrayList<>();
+        // Базовый случай: одно здание
+        if (left == right) {
+            skyline.add(List.of(buildings[left][0], buildings[left][2]));
+            skyline.add(List.of(buildings[left][1], 0));
+            return skyline;
+        }
+
+        int mid = left + (right - left) / 2;
+        List<List<Integer>> leftSkyline = mergeSkylines(buildings, left, mid);
+        List<List<Integer>> rightSkyline = mergeSkylines(buildings, mid + 1, right);
+        return merge(leftSkyline, rightSkyline);
+    }
+
+    // Функция слияния двух силуэтов
+    private List<List<Integer>> merge(List<List<Integer>> leftSkyline, List<List<Integer>> rightSkyline) {
+        List<List<Integer>> mergedSkyline = new ArrayList<>();
+        int i = 0, j = 0;
+        int currentH = 0, leftH = 0, rightH = 0;
+
+        while (i < leftSkyline.size() && j < rightSkyline.size()) {
+            int x;
+
+            // Выбираем меньшую x-координату
+            if (leftSkyline.get(i).get(0) < rightSkyline.get(j).get(0)) {
+                x = leftSkyline.get(i).get(0);
+                leftH = leftSkyline.get(i).get(1);
+                i++;
+            } else if (rightSkyline.get(j).get(0) < leftSkyline.get(i).get(0)) {
+                x = rightSkyline.get(j).get(0);
+                rightH = rightSkyline.get(j).get(1);
+                j++;
+            } else {
+                // Если координаты равны, обновляем обе высоты
+                x = leftSkyline.get(i).get(0);
+                leftH = leftSkyline.get(i).get(1);
+                rightH = rightSkyline.get(j).get(1);
+                i++;
+                j++;
+            }
+            // Текущая высота – максимум из двух силуэтов
+            int maxH = Math.max(leftH, rightH);
+
+            // Добавляем точку, если высота изменилась
+            if (mergedSkyline.isEmpty() || currentH != maxH) {
+                mergedSkyline.add(List.of(x, maxH));
+                currentH = maxH;
+            }
+        }
+
+        while (i < leftSkyline.size()) {
+            mergedSkyline.add(leftSkyline.get(i++));
+        }
+
+        while (j < rightSkyline.size()) {
+            mergedSkyline.add(rightSkyline.get(j++));
+        }
+        return mergedSkyline;
+    }
+
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        final List<List<Integer>> result = new ArrayList<>();
+
+        List<int[]> events = new ArrayList<>();
+
+        for (int[] building : buildings) {
+            events.add(new int[]{building[0], -building[2]});
+            events.add(new int[]{building[1], building[2]});
+        }
+
+        events.sort((a, b) -> {
+            if (a[0] != b[0]) return a[0] - b[0];
+            return a[1] - b[1];
+        });
+
+        // TreeMap для хранения активных высот.
+        // Ключ – высота, значение – количество таких высот.
+        TreeMap<Integer, Integer> heightMap = new TreeMap<>();
+
+        // Инициализируем базовой высотой 0.
+        heightMap.put(0, 1);
+
+        int prevMax = 0;
+
+        for (int[] event : events) {
+            int x = event[0];
+            int h = event[1];
+
+            if (h < 0) {
+                int height = -h;
+                heightMap.put(height, heightMap.getOrDefault(height, 0) + 1);
+            } else {
+                int count = heightMap.get(h);
+                if (count == 1) {
+                    heightMap.remove(h);
+                } else {
+                    heightMap.put(h, count - 1);
+                }
+            }
+            // Текущий максимум – последняя (наибольшая) высота в TreeMap.
+            int currentMax = heightMap.lastKey();
+
+            // Если максимум изменился, значит, это ключевая точка силуэта.
+            if (currentMax != prevMax) {
+                result.add(Arrays.asList(x, currentMax));
+                prevMax = currentMax;
+            }
+        }
+        return result;
+    }
+
+    public List<String> letterCombinations(String digits) {
+        if (digits == null || digits.isEmpty()) return new ArrayList<>();
+        // создаем массив букв
+        Map<Character, List<Character>> charsForDigits = new HashMap<>();
+        charsForDigits.put('2', List.of('a', 'b', 'c'));
+        charsForDigits.put('3', List.of('d', 'e', 'f'));
+        charsForDigits.put('4', List.of('g', 'h', 'i'));
+        charsForDigits.put('5', List.of('j', 'k', 'l'));
+        charsForDigits.put('6', List.of('m', 'n', 'o'));
+        charsForDigits.put('7', List.of('p', 'q', 'r', 's'));
+        charsForDigits.put('8', List.of('t', 'u', 'v'));
+        charsForDigits.put('9', List.of('w', 'x', 'y', 'z'));
+
+        List<String> result = new ArrayList<>();
+        backtrackingLetterCombinations(result, charsForDigits, digits, new StringBuilder(), 0);
+        return result;
+    }
+
+    private void backtrackingLetterCombinations(List<String> result, Map<Character, List<Character>> charsForDigits, String digits, StringBuilder preResult, int start) {
+        if (preResult.length() == digits.length()) {
+            result.add(preResult.toString());
+            return;
+        }
+
+        for (var c : charsForDigits.get(digits.charAt(start))) {
+            preResult.append(c);
+            backtrackingLetterCombinations(result, charsForDigits, digits, preResult, start + 1);
+            preResult.deleteCharAt(preResult.length() - 1);
+        }
+    }
+
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        boolean[] used = new boolean[nums.length];
+        backtrackingPermute(result, new ArrayList<>(), nums, used);
+        return result;
+    }
+
+    private void backtrackingPermute(List<List<Integer>> result, List<Integer> combine, int[] nums, boolean[] used) {
+        if (combine.size() == nums.length) {
+            result.add(new ArrayList<>(combine));
+            return;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if (used[i]) continue;
+            combine.add(nums[i]);
+            used[i] = true;
+            backtrackingPermute(result, combine, nums, used);
+            used[i] = false;
+            combine.remove(combine.size() - 1);
+        }
+    }
+
+    public int largestRectangleArea(int[] heights) {
+        return helpLargestRectangleArea(heights, 0, heights.length - 1);
+    }
+
+    private int helpLargestRectangleArea(int[] heights, int start, int end) {
+        if (start > end) return 0;
+
+        int minI = start;
+        for (int i = start; i <= end; i++) {
+            if (heights[minI] > heights[i]) minI = i;
+        }
+        int currentMaxArea = heights[minI] * (end - start + 1);
+
+        int leftMaxArea = helpLargestRectangleArea(heights, start, minI - 1);
+        int rightMaxArea = helpLargestRectangleArea(heights, minI + 1, end);
+
+        return Math.max(currentMaxArea, Math.max(leftMaxArea, rightMaxArea));
+    }
+
+
+    public int largestRectangleAreaStack(int[] heights) {
+        int n = heights.length;
+        Stack<Integer> stack = new Stack<>();
+        int maxArea = 0;
+
+        // Проходим по всем столбцам, добавляя фиктивный столбец с высотой 0 в конце
+        for (int i = 0; i <= n; i++) {
+            // Для последнего прохода устанавливаем h = 0, чтобы очистить стек
+            int h = (i == n ? 0 : heights[i]);
+
+            // Если текущая высота меньше, чем у столбца на вершине стека,
+            // то вычисляем площади для столбцов, которые больше текущей высоты.
+            while (!stack.isEmpty() && h < heights[stack.peek()]) {
+                int height = heights[stack.pop()];
+                // Если стек пуст, значит столбец с данной высотой был самым маленьким до i,
+                // и ширина прямоугольника равна i
+                int width = stack.isEmpty() ? i : i - stack.peek() - 1;
+                maxArea = Math.max(maxArea, height * width);
+            }
+            stack.push(i);
+        }
+
+        return maxArea;
+    }
+
+    private static class State {
+        String current; // Текущая строка
+        int open;       // Количество открытых скобок
+        int close;      // Количество закрытых скобок
+
+        State(String current, int open, int close) {
+            this.current = current;
+            this.open = open;
+            this.close = close;
+        }
+    }
+
+    public List<String> generateParenthesisIterative(int n) {
+        List<String> result = new ArrayList<>();
+        Stack<State> stack = new Stack<>();
+
+        // Инициализируем стек с начальным состоянием
+        stack.push(new State("", 0, 0));
+
+        while (!stack.isEmpty()) {
+            State state = stack.pop();
+
+            // Если текущая строка имеет длину 2 * n, добавляем её в результат
+            if (state.current.length() == n * 2) {
+                result.add(state.current);
+                continue;
+            }
+
+            // Если можем добавить закрывающую скобку
+            if (state.close < state.open) {
+                stack.push(new State(state.current + ")", state.open, state.close + 1));
+            }
+
+            // Если можем добавить открывающую скобку
+            if (state.open < n) {
+                stack.push(new State(state.current + "(", state.open + 1, state.close));
+            }
+        }
+
+        return result;
+    }
+
+    public List<String> generateParenthesis(int n) {
+        List<String> result = new ArrayList<>();
+        helpGenerateParenthesis(result, 0, 0, n, new StringBuilder());
+        return result;
+    }
+
+    private void helpGenerateParenthesis(List<String> result, int open, int close, int n, StringBuilder stringBuilder) {
+        if (stringBuilder.length() == n * 2) {
+            result.add(stringBuilder.toString());
+            return;
+        }
+        // учитываем что скобок должно быть поровну
+        if (open < n) {
+            stringBuilder.append("(");
+            helpGenerateParenthesis(result, open + 1, close, n, stringBuilder);
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+        if (open > close) {
+            stringBuilder.append(")");
+            helpGenerateParenthesis(result, open, close + 1, n, stringBuilder);
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+    }
+
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) return true;
+
+        if (checkTreeNodes(p, q)) return false;
+
+        Queue<TreeNode> pQueue = new LinkedList<>();
+        Queue<TreeNode> qQueue = new LinkedList<>();
+
+        pQueue.offer(p);
+        qQueue.offer(q);
+
+        while (!pQueue.isEmpty()) {
+            TreeNode pEl = pQueue.poll();
+            TreeNode qEl = qQueue.poll();
+
+            if (checkTreeNodes(p, q)) return false;
+
+            if (pEl != null && qEl != null) {
+                if (checkTreeNodes(pEl.left, qEl.left)) return false;
+                if (pEl.left != null) {
+                    pQueue.offer(pEl.left);
+                    qQueue.offer(qEl.left);
+                }
+
+                if (checkTreeNodes(pEl.right, qEl.right)) return false;
+                if (pEl.right != null) {
+                    pQueue.offer(pEl.right);
+                    qQueue.offer(qEl.right);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkTreeNodes(TreeNode p, TreeNode q) {
+        if (p == null && q == null) return false;
+        if (p == null || q == null) return true;
+
+        return p.val != q.val;
+    }
+
+    public List<List<Integer>> combine(int n, int k) {
+        List<List<Integer>> res = new ArrayList<>();
+        backtrackingCombine(res, new ArrayList<>(), 1, n, k);
+        return res;
+    }
+
+    private void backtrackingCombine(List<List<Integer>> res, ArrayList<Integer> current, int start, int n, int k) {
+        if (current.size() == k) {
+            res.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = start; i <= n; i++) {
+            current.add(i);
+            backtrackingCombine(res, current, i + 1, n, k);
+            current.remove(current.size() - 1);
+        }
+    }
+
+
+    public void solveSudoku(char[][] board) {
+        helpSolveSudoku(board, 0, 0);
+    }
+
+    private boolean helpSolveSudoku(char[][] board, int row, int col) {
+        // Условие завершения: дошли до конца доски
+        if (row == board.length) {
+            return true;
+        }
+
+        // Переход к следующей строке/ячейке
+        int nextRow = (col == (board.length - 1)) ? row + 1 : row;
+        int nextCol = (col + 1) % board[0].length;
+
+        // Если ячейка уже заполнена, перейти к следующей
+        if (board[row][col] != '.') {
+            return helpSolveSudoku(board, nextRow, nextCol);
+        }
+
+        // Пробуем значения от '1' до '9'
+        for (char val = '1'; val <= '9'; val++) {
+            if (isValueOnBoardValid(board, row, col, val)) {
+                board[row][col] = val; // Устанавливаем значение
+                if (helpSolveSudoku(board, nextRow, nextCol)) {
+                    return true; // Если решение найдено, возвращаемся
+                }
+                board[row][col] = '.'; // Откат (backtracking)
+            }
+        }
+
+        return false; // Нет решения для текущей конфигурации
+    }
+
+    private boolean isValueOnBoardValid(char[][] board, int row, int col, char val) {
+        // Проверка строки
+        for (int i = 0; i < board.length; i++) {
+            if (board[row][i] == val) {
+                return false;
+            }
+        }
+
+        // Проверка столбца
+        for (int i = 0; i < board[0].length; i++) {
+            if (board[i][col] == val) {
+                return false;
+            }
+        }
+
+        // Проверка 3x3 квадрата
+        int startRow = row - row % 3;
+        int startCol = col - col % 3;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[startRow + i][startCol + j] == val) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private int totalNQueens(int n) {
+        int[] queensCol = new int[n];
+        return backtrackTotalQueens(queensCol, 0);
+    }
+
+    private int backtrackTotalQueens(int[] queens, int row) {
+        if (queens.length == row) {
+            return 1;
+        }
+
+        int count = 0;
+        for (int col = 0; col < queens.length; col++) {
+            if (isValid(queens, row, col)) {
+                queens[row] = col;
+                count += backtrackTotalQueens(queens, row + 1);
+            }
+        }
+        return count;
+    }
+
+    private boolean isValid(int[] queens, int row, int col) {
+        for (int i = 0; i < row; i++) {
+            if (queens[i] == col ||
+                queens[i] - i == col - row ||
+                queens[i] + i == row + col) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean searchMatrix(int[][] matrix, int target) {
+        return helpSearchMatrix(matrix, target, 0, matrix.length - 1, 0, matrix[0].length - 1);
+    }
+
+    private boolean helpSearchMatrix(int[][] matrix, int target, int startI, int endI, int startJ, int endJ) {
+        if (startI > endI || startJ > endJ) return false;
+
+        int midJ = startJ + (endJ - startJ) / 2;
+
+        int bounderI = startI;
+        while (bounderI <= endI && matrix[bounderI][midJ] <= target) {
+            if (matrix[bounderI][midJ] == target) return true;
+            bounderI++;
+        }
+        // Разделяем на подматрицы и ищем в верхней правой и нижней левой подматрицах
+        return helpSearchMatrix(matrix, target, startI, bounderI - 1, midJ + 1, endJ) || // Верхняя правая подматрица
+               helpSearchMatrix(matrix, target, bounderI, endI, startJ, midJ - 1); // Нижняя левая подматрица
+    }
+
+    protected boolean isValidBST(TreeNode root) {
+        return helpIsValidBST(root, null, null);
+    }
+
+    protected boolean helpIsValidBST(TreeNode root, Integer min, Integer max) {
+        if (root == null) return true;
+
+        if (min != null && root.val <= min || max != null && root.val >= max) return false;
+
+        return helpIsValidBST(root.left, min, root.val) && helpIsValidBST(root.right, root.val, max);
+    }
+
+
+    protected int[] sortArray(int[] nums) {
+        if (nums == null || nums.length <= 1) {
+            return nums;
+        }
+
+        int[] aux = new int[nums.length];
+        for (int size = 1; size < nums.length; size *= 2) {
+            for (int leftStart = 0; leftStart < nums.length; leftStart += 2 * size) {
+                int mid = Math.min(leftStart + size, nums.length);
+                int rightEnd = Math.min(leftStart + 2 * size, nums.length);
+                merge(nums, aux, leftStart, mid, rightEnd);
+            }
+        }
+        return nums;
+    }
+
+    private void merge(int[] nums, int[] aux, int leftStart, int mid, int rightEnd) {
+        System.arraycopy(nums, leftStart, aux, leftStart, rightEnd - leftStart);
+
+        int i = leftStart, j = mid, k = leftStart;
+        while (i < mid && j < rightEnd) {
+            if (aux[i] <= aux[j]) {
+                nums[k++] = aux[i++];
+            } else {
+                nums[k++] = aux[j++];
+            }
+        }
+
+        while (i < mid) {
+            nums[k++] = aux[i++];
+        }
+
+        while (j < rightEnd) {
+            nums[k++] = aux[j++];
+        }
+    }
+
+    protected int[] sortArrayMyVersion(int[] nums) {
+        List<List<Integer>> divs = new ArrayList<>();
+
+        for (int num : nums) {
+            List<Integer> partDivs = new ArrayList<>();
+            partDivs.add(num);
+            divs.add(partDivs);
+        }
+
+        while (divs.size() > 1) {
+            for (int i = divs.size() - 1; i > 0; i--) {
+                List<Integer> part1 = divs.remove(i);
+                List<Integer> part2 = divs.remove(i - 1);
+
+                List<Integer> newPart = new ArrayList<>();
+                int left = 0;
+                int right = 0;
+
+                while (left < part1.size() && right < part2.size()) {
+                    if (part1.get(left) <= part2.get(right)) {
+                        newPart.add(part1.get(left));
+                        left++;
+                    } else {
+                        newPart.add(part2.get(right));
+                        right++;
+                    }
+                }
+
+                while (left < part1.size()) {
+                    newPart.add(part1.get(left));
+                    left++;
+                }
+
+                while (right < part2.size()) {
+                    newPart.add(part2.get(right));
+                    right++;
+                }
+                divs.add(newPart);
+            }
+        }
+
+        return divs.get(0).stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    protected boolean canConstruct(String ransomNote, String magazine) {
         Map<Character, Integer> littersMap = new HashMap<>();
         for (int i = 0; i < magazine.length(); i++) {
             littersMap.put(magazine.charAt(i), littersMap.getOrDefault(magazine.charAt(i), 0) + 1);
@@ -82,7 +654,7 @@ public class Solution {
         return true;
     }
 
-    public int findMaxConsecutiveOnes(int[] nums) {
+    protected int findMaxConsecutiveOnes(int[] nums) {
         int count1 = 0;
         int countMax1 = -1;
         for (int i = 0; i < nums.length; i++) {
@@ -96,7 +668,7 @@ public class Solution {
         return countMax1;
     }
 
-    public int findNumbers(int[] nums) {
+    protected int findNumbers(int[] nums) {
         int countEven = 0;
         for (int num : nums) {
             int count = (int) Math.log10(num) + 1;
@@ -105,7 +677,7 @@ public class Solution {
         return countEven;
     }
 
-    public int[] sortedSquares(int[] nums) {
+    protected int[] sortedSquares(int[] nums) {
         int negativeI = 0;
         int positiveI = nums.length - 1;
         int[] copyNums = new int[nums.length];
@@ -121,7 +693,7 @@ public class Solution {
         return copyNums;
     }
 
-    public void duplicateZeros(int[] arr) {
+    protected void duplicateZeros(int[] arr) {
         for (int i = 0; i < arr.length - 1; i++) {
             if (arr[i] == 0) {
                 System.arraycopy(arr, i, arr, i + 1, arr.length - 1 - i);
@@ -130,7 +702,7 @@ public class Solution {
         }
     }
 
-    public void merge(int[] nums1, int m, int[] nums2, int n) {
+    protected void merge(int[] nums1, int m, int[] nums2, int n) {
         int i = m - 1;
         int j = n - 1;
         int k = nums1.length - 1;
@@ -151,7 +723,7 @@ public class Solution {
         System.out.println(Arrays.toString(nums1));
     }
 
-    public int removeElement(int[] nums, int val) {
+    protected int removeElement(int[] nums, int val) {
         int endI = nums.length;
         int i = 0;
 
@@ -164,7 +736,7 @@ public class Solution {
         return endI;
     }
 
-    public int removeDuplicates(int[] nums) {
+    protected int removeDuplicates(int[] nums) {
         int i = 1;
         int p = 1;
         int end = nums.length;
@@ -178,7 +750,7 @@ public class Solution {
         return p;
     }
 
-    public boolean checkIfExist(int[] arr) {
+    protected boolean checkIfExist(int[] arr) {
         Set<Integer> set = new HashSet<>();
         for (int j : arr) {
             if (j % 2 == 0 && set.contains(j / 2)) return true;
@@ -188,7 +760,7 @@ public class Solution {
         return false;
     }
 
-    public boolean validMountainArray(int[] arr) {
+    protected boolean validMountainArray(int[] arr) {
         int l = 0, r = arr.length - 1;
         while (l < r) {
             if (arr[l] < arr[l + 1]) {
@@ -202,7 +774,7 @@ public class Solution {
         return l != 0 && r != arr.length - 1 && arr[l] == arr[r];
     }
 
-    public int heightChecker(int[] heights) {
+    protected int heightChecker(int[] heights) {
         int[] copyArr = heights.clone();
         Arrays.sort(heights);
         int countOtherIndex = 0;
@@ -214,7 +786,7 @@ public class Solution {
         return countOtherIndex;
     }
 
-    public int thirdMax(int[] nums) {
+    protected int thirdMax(int[] nums) {
         int max1 = Integer.MIN_VALUE;
         int max2 = Integer.MIN_VALUE;
         int max3 = Integer.MIN_VALUE;
@@ -233,7 +805,7 @@ public class Solution {
         return max3 == Integer.MIN_VALUE ? max1 : max3;
     }
 
-    public List<Integer> findDisappearedNumbers(int[] nums) {
+    protected List<Integer> findDisappearedNumbers(int[] nums) {
         for (int i = 0; i < nums.length; i++) {
             int pos = nums[i] - 1;
             if (nums[i] != nums[pos]) {
@@ -251,7 +823,7 @@ public class Solution {
     }
 
 
-    public int pivotIndex(int[] nums) {
+    protected int pivotIndex(int[] nums) {
         int leftSum = 0;
         int totalSum = 0;
         for (int num : nums) {
@@ -268,7 +840,7 @@ public class Solution {
         return -1;
     }
 
-    public int[] plusOne(int[] digits) {
+    protected int[] plusOne(int[] digits) {
         int i = digits.length - 1;
 
         while (i >= 0) {
@@ -288,7 +860,7 @@ public class Solution {
         return digits;
     }
 
-    public int[] findDiagonalOrderV1(int[][] mat) {
+    protected int[] findDiagonalOrderV1(int[][] mat) {
         int i = 0;
         int j = 0;
         int m = mat.length;
@@ -327,7 +899,7 @@ public class Solution {
         return arr;
     }
 
-    public int[] findDiagonalOrderV2(int[][] mat) {
+    protected int[] findDiagonalOrderV2(int[][] mat) {
         int i = 0;
         int j = 0;
         int m = mat.length;
@@ -366,7 +938,7 @@ public class Solution {
         return arr;
     }
 
-    public int[] intersection(int[] nums1, int[] nums2) {
+    protected int[] intersection(int[] nums1, int[] nums2) {
         Set<Integer> resultSet = new HashSet<>();
         Set<Integer> arrSet = new HashSet<>();
         for (int el : nums1) {
@@ -386,7 +958,7 @@ public class Solution {
     }
 
 
-    public List<Integer> spiralOrderV1(int[][] matrix) {
+    protected List<Integer> spiralOrderV1(int[][] matrix) {
         List<Integer> arr = new ArrayList<>();
 
         int a = 0, b = 1, c = 2;
@@ -417,7 +989,7 @@ public class Solution {
     }
 
 
-    public List<Integer> spiralOrderV2(int[][] matrix) {
+    protected List<Integer> spiralOrderV2(int[][] matrix) {
         List<Integer> arr = new ArrayList<>();
 
         int upLimit = 1;
@@ -449,7 +1021,7 @@ public class Solution {
         return arr;
     }
 
-    public List<Integer> spiralOrderV3(int[][] matrix) {
+    protected List<Integer> spiralOrderV3(int[][] matrix) {
         List<Integer> ans = new ArrayList<>();
 
         int n = matrix.length;
@@ -482,7 +1054,7 @@ public class Solution {
         return ans;
     }
 
-    public List<List<Integer>> generate(int numRows) {
+    protected List<List<Integer>> generate(int numRows) {
         List<List<Integer>> resultList = new ArrayList<>();
         //1
         //11
@@ -502,7 +1074,7 @@ public class Solution {
         return resultList;
     }
 
-    public String addBinary(String a, String b) {
+    protected String addBinary(String a, String b) {
         int ia = a.length() - 1;
         int ib = b.length() - 1;
         int carryOver = 0;
@@ -522,14 +1094,14 @@ public class Solution {
         return sum.reverse().toString();
     }
 
-    public String addBinaryV2(String a, String b) {
+    protected String addBinaryV2(String a, String b) {
         BigInteger x = new BigInteger(a, 2);
         BigInteger y = new BigInteger(b, 2);
         BigInteger sum = x.add(y);
         return sum.toString(2);
     }
 
-    public int pivotInteger(int n) {
+    protected int pivotInteger(int n) {
         //1 2 3 4   5   6   7    8
         //1 3 6 10  15  21  28   36
         //allSum + x = sum[1, x] + sum[x, n]  <=> allSum + x = 2 * sum[1,x] <=> x = allSum - 2 * sum[1,x)
@@ -545,11 +1117,11 @@ public class Solution {
         return x;
     }
 
-    public int strStr(String haystack, String needle) {
+    protected int strStr(String haystack, String needle) {
         return haystack.indexOf(needle);
     }
 
-    public String longestCommonPrefix(String[] strs) {
+    protected String longestCommonPrefix(String[] strs) {
         StringBuilder prefixStr = new StringBuilder();
         int minLenStr = strs[0].length();
         for (String str : strs) {
@@ -567,7 +1139,7 @@ public class Solution {
         return prefixStr.toString();
     }
 
-    public int numSubarraysWithSum(int[] nums, int goal) {
+    protected int numSubarraysWithSum(int[] nums, int goal) {
         int count = 0;
         int sum = 0;
 
@@ -582,7 +1154,7 @@ public class Solution {
         return count;
     }
 
-    public int[] productExceptSelf(int[] nums) {
+    protected int[] productExceptSelf(int[] nums) {
         int[] result = new int[nums.length];
         int product = 1;
 
@@ -600,7 +1172,7 @@ public class Solution {
         return result;
     }
 
-    public int findMaxLength(int[] nums) {
+    protected int findMaxLength(int[] nums) {
         //[0, 1] countZero == countOne, maxLen -> nums.length
 
         //[1, 1, 1, 0, 1, 0, 0, 1]
@@ -626,7 +1198,7 @@ public class Solution {
         return maxLen;
     }
 
-    public int arrayPairSum(int[] nums) {
+    protected int arrayPairSum(int[] nums) {
         Arrays.sort(nums);
         int maxSum = 0;
         for (int i = 0; i < nums.length; i += 2) {
@@ -636,7 +1208,7 @@ public class Solution {
         return maxSum;
     }
 
-    public int[][] insert(int[][] intervals, int[] newInterval) {
+    protected int[][] insert(int[][] intervals, int[] newInterval) {
         List<int[]> result = new ArrayList<>();
         int l = 0;
         int r = intervals.length;
@@ -659,7 +1231,7 @@ public class Solution {
         return result.toArray(new int[result.size()][]);
     }
 
-    public int findMinArrowShots(int[][] points) {
+    protected int findMinArrowShots(int[][] points) {
         // [[10,16],[2,8],[1,6],[7,12]]
         // [[1,6], [2,8], [7,12], [10,16]]
         // [[2,6],[10,12]]
@@ -679,7 +1251,7 @@ public class Solution {
         return result;
     }
 
-    public int findDuplicate(int[] nums) {
+    protected int findDuplicate(int[] nums) {
         int slow = nums[0];
         int fast = nums[0];
         do { // we are sure that at least one duplicate is there
@@ -695,7 +1267,7 @@ public class Solution {
         return fast;
     }
 
-    public List<Integer> findDuplicates(int[] nums) {
+    protected List<Integer> findDuplicates(int[] nums) {
         List<Integer> result = new ArrayList<>();
         for (int i = 0; i < nums.length; i++) {
             int val = Math.abs(nums[i]);
@@ -708,7 +1280,7 @@ public class Solution {
         return result;
     }
 
-    public int[] twoSum(int[] numbers, int target) {
+    protected int[] twoSum(int[] numbers, int target) {
         int i = 0;
         int j = numbers.length - 1;
         int[] result = new int[2];
@@ -726,7 +1298,7 @@ public class Solution {
         return result;
     }
 
-    public int numSubarrayProductLessThanK(int[] nums, int k) {
+    protected int numSubarrayProductLessThanK(int[] nums, int k) {
         //[10]
         //count = 1
         //[10, 5]
@@ -750,7 +1322,7 @@ public class Solution {
         return count;
     }
 
-    public int firstMissingPositive(int[] nums) {
+    protected int firstMissingPositive(int[] nums) {
         int n = nums.length;
 
         // Поместим каждое положительное число в его "правильное" место в массиве
@@ -774,7 +1346,7 @@ public class Solution {
         return n + 1;
     }
 
-    public int maxSubarrayLength(int[] nums, int k) {
+    protected int maxSubarrayLength(int[] nums, int k) {
         //[1,2,3,1,2,3,1,2]
         Map<Integer, Integer> countElement = new HashMap<>();
         int maxLen = 0;
@@ -792,7 +1364,7 @@ public class Solution {
         return maxLen;
     }
 
-    public long countSubarrays(int[] nums, int k) {
+    protected long countSubarrays(int[] nums, int k) {
         //[1, 3, 2, 3, 3, 2, 3]
         //[1, 3, 4, 6]
         long ans = 0;
@@ -818,7 +1390,7 @@ public class Solution {
         return ans;
     }
 
-    public int maxDepth(String s) {
+    protected int maxDepth(String s) {
         int max = 0;
         int count = 0;
         for (char c : s.toCharArray()) {
@@ -829,7 +1401,7 @@ public class Solution {
         return max;
     }
 
-    public int lengthOfLastWord(String s) {
+    protected int lengthOfLastWord(String s) {
         int len = 0;
         int k = s.length() - 1;
         while (k >= 0 && s.charAt(k) == ' ') {
@@ -843,7 +1415,7 @@ public class Solution {
         return len;
     }
 
-//    public boolean isIsomorphic(String s, String t) {
+//    protected boolean isIsomorphic(String s, String t) {
 //        Map<Character, List<Integer>> sMap = new HashMap<>();
 //        Map<Character, List<Integer>> tMap = new HashMap<>();
 //        //abc
@@ -860,7 +1432,7 @@ public class Solution {
 //        //return sMap.values().equals(tMap.values());
 //    }
 
-    public boolean isIsomorphic(String s, String t) {
+    protected boolean isIsomorphic(String s, String t) {
 
         HashMap<Character, Character> mapS2T = new HashMap<>();
         HashMap<Character, Character> mapT2S = new HashMap<>();
@@ -888,7 +1460,7 @@ public class Solution {
         return true;
     }
 
-    public String minRemoveToMakeValid(String s) {
+    protected String minRemoveToMakeValid(String s) {
         StringBuilder sb = new StringBuilder(s);
         int open = 0;
 
@@ -911,7 +1483,7 @@ public class Solution {
         return sb.toString();
     }
 
-    public int minSubArrayLen(int target, int[] nums) {
+    protected int minSubArrayLen(int target, int[] nums) {
         int start = 0;
         int sum = 0;
         int minSize = Integer.MAX_VALUE;
@@ -926,7 +1498,7 @@ public class Solution {
         return minSize == Integer.MAX_VALUE ? 0 : minSize;
     }
 
-    public List<Integer> getRow(int rowIndex) {
+    protected List<Integer> getRow(int rowIndex) {
         List<Integer> list = new ArrayList<>();
         list.add(1);
 
@@ -941,7 +1513,7 @@ public class Solution {
         return list;
     }
 
-    public String reverseWords(String s) {
+    protected String reverseWords(String s) {
         s = s.trim().replaceAll(" +", " ");
 
         String[] words = s.split(" ");
@@ -954,7 +1526,7 @@ public class Solution {
         return stringBuilder.toString();
     }
 
-    public String reverseWordsV2(String s) {
+    protected String reverseWordsV2(String s) {
         s = s.trim();
 
         Deque<String> words = new ArrayDeque<>();
@@ -976,7 +1548,7 @@ public class Solution {
         return String.join(" ", words);
     }
 
-    public String reverseWordsOther(String s) {
+    protected String reverseWordsOther(String s) {
         String[] words = s.split(" ");
         for (int i = 0; i < words.length; i++) {
             words[i] = new StringBuilder(words[i])
@@ -986,7 +1558,7 @@ public class Solution {
         return String.join(" ", words);
     }
 
-    public void moveZeroes(int[] nums) {
+    protected void moveZeroes(int[] nums) {
         int lastNonZeroFoundAt = 0;
 
         for (int i = 0; i < nums.length; i++) {
@@ -1000,7 +1572,7 @@ public class Solution {
         }
     }
 
-    public int minMoves2(int[] nums) {
+    protected int minMoves2(int[] nums) {
         // [1, 2, 3]
         // 1 + 2 + 3 / 3 = 2
         // [1, 10 , 2 , 9]
@@ -1029,7 +1601,7 @@ public class Solution {
         return res;
     }
 
-    public List<Integer> preorderTraversal(TreeNode root) {
+    protected List<Integer> preorderTraversal(TreeNode root) {
         List<Integer> result = new ArrayList<>();
         recursiveTreePreorderTraversal(root, result);
         return result;
@@ -1044,7 +1616,7 @@ public class Solution {
         if (root.right != null) recursiveTreePreorderTraversal(root.right, arr);
     }
 
-    public List<Integer> inorderTraversal(TreeNode root) {
+    protected List<Integer> inorderTraversal(TreeNode root) {
         List<Integer> result = new ArrayList<>();
         recursiveTreeInorderTraversal(root, result);
         return result;
@@ -1058,7 +1630,7 @@ public class Solution {
         if (root.right != null) recursiveTreeInorderTraversal(root.right, result);
     }
 
-    public List<Integer> postorderTraversal(TreeNode root) {
+    protected List<Integer> postorderTraversal(TreeNode root) {
         List<Integer> result = new ArrayList<>();
         recursiveTreePostorderTraversal(root, result);
         return result;
@@ -1073,7 +1645,7 @@ public class Solution {
         result.add(root.val);
     }
 
-    public List<List<Integer>> levelOrder(TreeNode root) {
+    protected List<List<Integer>> levelOrder(TreeNode root) {
         List<List<Integer>> bfsOrder = new ArrayList<>();
         if (root == null) return bfsOrder;
 
@@ -1095,7 +1667,7 @@ public class Solution {
         return bfsOrder;
     }
 
-    public int maxDepth(TreeNode root) {
+    protected int maxDepth(TreeNode root) {
         if (root == null) return 0;
 
         int leftDepth = maxDepth(root.left);
@@ -1104,7 +1676,7 @@ public class Solution {
         return Math.max(leftDepth, rightDepth) + 1;
     }
 
-    public boolean isSymmetric(TreeNode root) {
+    protected boolean isSymmetric(TreeNode root) {
         return isMirror(root.left, root.right);
     }
 
@@ -1114,7 +1686,7 @@ public class Solution {
         return node1.val == node2.val && isMirror(node1.left, node2.right) && isMirror(node2.left, node1.right);
     }
 
-    public boolean hasPathSum(TreeNode root, int targetSum) {
+    protected boolean hasPathSum(TreeNode root, int targetSum) {
         if (root == null) {
             return false;
         }
@@ -1131,7 +1703,7 @@ public class Solution {
 
     private int postIndex;
 
-    public TreeNode buildTree(int[] inorder, int[] postorder) {
+    protected TreeNode buildTree(int[] inorder, int[] postorder) {
         Map<Integer, Integer> inorderIndexes = new HashMap<>();
         postIndex = postorder.length - 1;
 
@@ -1162,7 +1734,7 @@ public class Solution {
 
     private int rootIndex;
 
-    public TreeNode preorderbuildTree(int[] preorder, int[] inorder) {
+    protected TreeNode preorderbuildTree(int[] preorder, int[] inorder) {
         Map<Integer, Integer> inorderIndexes = new HashMap<>();
         rootIndex = 0;
 
@@ -1187,7 +1759,7 @@ public class Solution {
         return root;
     }
 
-    public Node connect(Node root) {
+    protected Node connect(Node root) {
         if (root == null || root.left == null) return root;
 
         root.left.next = root.right;
@@ -1200,7 +1772,7 @@ public class Solution {
         return root;
     }
 
-    public Node connect2(Node root) {
+    protected Node connect2(Node root) {
         if (root == null) return root;
 
         if (root.left != null) root.left.next = (root.right != null) ? root.right : getNext(root.next);
@@ -1222,7 +1794,7 @@ public class Solution {
     }
 
     // Encodes a tree to a single string.
-    public String serialize(TreeNode root) {
+    protected String serialize(TreeNode root) {
         StringBuilder s = new StringBuilder();
         serializeRecursive(root, s);
         return s.toString().trim();
@@ -1240,7 +1812,7 @@ public class Solution {
     }
 
     // Decodes your encoded data to tree.
-    public TreeNode deserialize(String data) {
+    protected TreeNode deserialize(String data) {
         if (data.isEmpty()) return null;
         String[] stringRoot = data.split(" ");
         Queue<String> queue = new LinkedList<>(Arrays.asList(stringRoot));
@@ -1264,7 +1836,7 @@ public class Solution {
         private int size;
         private int capacity;
 
-        public MyCircularQueue(int k) {
+        protected MyCircularQueue(int k) {
             arr = new int[k];
             start = 0;
             end = -1;
@@ -1272,7 +1844,7 @@ public class Solution {
             capacity = k; // вместимость очереди
         }
 
-        public boolean enQueue(int value) {
+        protected boolean enQueue(int value) {
             if (isFull()) return false; // если очередь заполнена, вставка невозможна
             end = (end + 1) % capacity; // циклическое обновление индекса
             arr[end] = value;
@@ -1280,28 +1852,28 @@ public class Solution {
             return true;
         }
 
-        public boolean deQueue() {
+        protected boolean deQueue() {
             if (isEmpty()) return false; // если очередь пуста, удаление невозможно
             start = (start + 1) % capacity; // циклическое обновление индекса
             size--; // уменьшаем размер
             return true;
         }
 
-        public int Front() {
+        protected int Front() {
             if (isEmpty()) return -1; // если очередь пуста, вернуть -1
             return arr[start];
         }
 
-        public int Rear() {
+        protected int Rear() {
             if (isEmpty()) return -1; // если очередь пуста, вернуть -1
             return arr[end]; // корректное получение последнего элемента
         }
 
-        public boolean isEmpty() {
+        protected boolean isEmpty() {
             return size == 0; // очередь пуста, если нет элементов
         }
 
-        public boolean isFull() {
+        protected boolean isFull() {
             return size == capacity; // очередь заполнена, если количество элементов равно вместимости
         }
     }
@@ -1309,7 +1881,7 @@ public class Solution {
     private Queue<PointIsland> queueIsland;
     private Set<PointIsland> visited = new HashSet<>();
 
-    public int numIslands(char[][] grid) {
+    protected int numIslands(char[][] grid) {
         int countIslands = 0;
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
@@ -1358,15 +1930,15 @@ public class Solution {
         private int x;
         private int y;
 
-        public int getX() {
+        protected int getX() {
             return x;
         }
 
-        public int getY() {
+        protected int getY() {
             return y;
         }
 
-        public PointIsland(int x, int y) {
+        protected PointIsland(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -1386,7 +1958,7 @@ public class Solution {
     }
 
 
-    public int numIslands2(char[][] grid) {
+    protected int numIslands2(char[][] grid) {
         if (grid == null || grid.length == 0) return 0;
 
         int numIslands = 0;
@@ -1434,7 +2006,7 @@ public class Solution {
         }
     }
 
-    public int openLock(String[] deadends, String target) {
+    protected int openLock(String[] deadends, String target) {
         Set<String> visited = new HashSet<>(Arrays.asList(deadends));
         Queue<String> combines = new LinkedList<>();
 
@@ -1474,7 +2046,7 @@ public class Solution {
     }
 
 
-    public int numSquares(int n) {
+    protected int numSquares(int n) {
         Set<Integer> visited = new HashSet<>();
         Queue<Integer> squares = new LinkedList<>();
 
@@ -1509,12 +2081,12 @@ public class Solution {
         List<Integer> stack;
         List<Integer> minStack;
 
-        public MinStack() {
+        protected MinStack() {
             this.stack = new ArrayList<>();
             this.minStack = new ArrayList<>();
         }
 
-        public void push(int val) {
+        protected void push(int val) {
             //5  5
             //3  3
             //4
@@ -1525,21 +2097,21 @@ public class Solution {
             stack.add(val);
         }
 
-        public void pop() {
+        protected void pop() {
             int removeVal = stack.remove(stack.size() - 1);
             if (minStack.get(minStack.size() - 1) == removeVal) minStack.remove(minStack.size() - 1);
         }
 
-        public int top() {
+        protected int top() {
             return stack.get(stack.size() - 1);
         }
 
-        public int getMin() {
+        protected int getMin() {
             return minStack.get(minStack.size() - 1);
         }
     }
 
-    public boolean isValid(String s) {
+    protected boolean isValid(String s) {
         char[] bracket = s.toCharArray();
         Stack<Character> openBrackets = new Stack<>();
         for (char c : bracket) {
@@ -1570,7 +2142,7 @@ public class Solution {
         return c == '(' || c == '{' || c == '[';
     }
 
-    public boolean isValidV2(String s) {
+    protected boolean isValidV2(String s) {
         Map<Character, Character> BRACKETS_MAP = new HashMap<>();
         BRACKETS_MAP.put(')', '(');
         BRACKETS_MAP.put('}', '{');
@@ -1593,7 +2165,7 @@ public class Solution {
     }
 
 
-    public int[] dailyTemperatures(int[] temperatures) {
+    protected int[] dailyTemperatures(int[] temperatures) {
         //Stack<Integer> prefIndexes = new Stack<>();
         Deque<Integer> prefIndexes = new ArrayDeque<>();
 
@@ -1609,7 +2181,7 @@ public class Solution {
         return waitDays;
     }
 
-    public int evalRPN(String[] tokens) {
+    protected int evalRPN(String[] tokens) {
         Deque<Integer> stack = new ArrayDeque<>();
         for (String token : tokens) {
             if (isOperator(token)) {
@@ -1624,11 +2196,11 @@ public class Solution {
         return stack.pop();
     }
 
-    public boolean isOperator(String s) {
+    protected boolean isOperator(String s) {
         return s.equals("+") || s.equals("-") || s.equals("*") || s.equals("/");
     }
 
-    public int applyOperator(String s, int b, int a) {
+    protected int applyOperator(String s, int b, int a) {
         switch (s) {
             case "+":
                 return a + b;
@@ -1644,7 +2216,7 @@ public class Solution {
     }
 
 
-    public int numIslandsDfs(char[][] grid) {
+    protected int numIslandsDfs(char[][] grid) {
         if (grid == null || grid.length == 0) return 0;
 
         int numIslands = 0;
@@ -1690,26 +2262,26 @@ public class Solution {
     }
 
     static class GraphNode {
-        public int val;
-        public List<GraphNode> neighbors;
+        protected int val;
+        protected List<GraphNode> neighbors;
 
-        public GraphNode() {
+        protected GraphNode() {
             val = 0;
             neighbors = new ArrayList<>();
         }
 
-        public GraphNode(int _val) {
+        protected GraphNode(int _val) {
             val = _val;
             neighbors = new ArrayList<>();
         }
 
-        public GraphNode(int _val, ArrayList<GraphNode> _neighbors) {
+        protected GraphNode(int _val, ArrayList<GraphNode> _neighbors) {
             val = _val;
             neighbors = _neighbors;
         }
     }
 
-    public GraphNode cloneGraph(GraphNode node) {
+    protected GraphNode cloneGraph(GraphNode node) {
         if (node == null) return null;
 
         // Map для хранения уже клонированных узлов
@@ -1737,7 +2309,7 @@ public class Solution {
         return clones.get(node);
     }
 
-    public int findTargetSumWays(int[] nums, int target) {
+    protected int findTargetSumWays(int[] nums, int target) {
         // Карта для хранения результатов подзадач (индекс, target) -> количество способов
         Map<String, Integer> memo = new HashMap<>();
         return dfsFindTargetSum(nums, 0, target, memo);
@@ -1768,7 +2340,7 @@ public class Solution {
     }
 
 
-    public List<Integer> inorderTraversalStack(TreeNode root) {
+    protected List<Integer> inorderTraversalStack(TreeNode root) {
         List<Integer> result = new ArrayList<>();
         Deque<TreeNode> stack = new ArrayDeque<>();
 
@@ -1789,7 +2361,7 @@ public class Solution {
         return result;
     }
 
-    public String decodeString(String s) {
+    protected String decodeString(String s) {
         StringBuilder currentString = new StringBuilder();
         Deque<String> stackString = new ArrayDeque<>();
         Deque<Integer> stackNumber = new ArrayDeque<>();
@@ -1823,7 +2395,7 @@ public class Solution {
 
     int firstColor;
 
-    public int[][] floodFill(int[][] image, int sr, int sc, int color) {
+    protected int[][] floodFill(int[][] image, int sr, int sc, int color) {
         firstColor = image[sr][sc];
         if (firstColor == color) return image;
         dfsFloodFill(image, sr, sc, color);
@@ -1841,7 +2413,7 @@ public class Solution {
         dfsFloodFill(image, sr, sc - 1, color);
     }
 
-    public int[][] updateMatrix(int[][] mat) {
+    protected int[][] updateMatrix(int[][] mat) {
         if (mat == null || mat.length == 0) {
             return new int[0][0];
         }
@@ -1888,7 +2460,7 @@ public class Solution {
     }
 
 
-    public boolean canVisitAllRooms(List<List<Integer>> rooms) {
+    protected boolean canVisitAllRooms(List<List<Integer>> rooms) {
         Set<Integer> visitRooms = new HashSet<>();
 
         Queue<Integer> keys = new LinkedList<>();
@@ -1910,7 +2482,7 @@ public class Solution {
     }
 
 
-    public boolean canVisitAllRoomsDfs(List<List<Integer>> rooms) {
+    protected boolean canVisitAllRoomsDfs(List<List<Integer>> rooms) {
         Set<Integer> visited = new HashSet<>();
         dfs(rooms, 0, visited);
         return visited.size() == rooms.size();
@@ -1924,7 +2496,7 @@ public class Solution {
         }
     }
 
-    public ListNode swapPairs(ListNode head) {
+    protected ListNode swapPairs(ListNode head) {
         if (head == null || head.next == null) return head;
 
         ListNode s = head.next;
@@ -1937,7 +2509,7 @@ public class Solution {
 
     Map<List<Integer>, Integer> visitedMap;
 
-    public List<Integer> getRowRecursive(int rowIndex) {
+    protected List<Integer> getRowRecursive(int rowIndex) {
         List<Integer> row = new ArrayList<>();
         visitedMap = new HashMap<>();
         for (int i = 0; i <= rowIndex; i++) {
@@ -1965,7 +2537,7 @@ public class Solution {
         return el;
     }
 
-    public ListNode reverseList(ListNode head) {
+    protected ListNode reverseList(ListNode head) {
         // Базовый случай: если head пуст или последний элемент, возвращаем его
         if (head == null || head.next == null) {
             return head;
@@ -1984,7 +2556,7 @@ public class Solution {
         return reversedHead;
     }
 
-    public TreeNode searchBST(TreeNode root, int val) {
+    protected TreeNode searchBST(TreeNode root, int val) {
         if (root == null) return null;
 
         if (root.val == val) return root;
@@ -1993,5 +2565,185 @@ public class Solution {
         if (root.val < val) node = searchBST(root.right, val);
 
         return node;
+    }
+
+    // Универсальная функция-декоратор для мемоизации
+    protected <T, R> Function<T, R> memoize(Function<T, R> function) {
+        // Кэш для хранения результатов
+        Map<T, R> cache = new HashMap<>();
+
+        // Возвращаем обёрнутую функцию с мемоизацией
+        return input -> {
+            if (cache.containsKey(input)) {
+                return cache.get(input); // Возвращаем закэшированный результат
+            }
+            R result = function.apply(input); // Вызываем оригинальную функцию
+            cache.put(input, result); // Сохраняем результат в кэш
+            return result;
+        };
+    }
+
+    // Обычная рекурсивная функция для вычисления чисел Фибоначчи
+    protected int fibonacci(int n) {
+        if (n < 2) {
+            return n;
+        } else {
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+    }
+
+    Map<Integer, Integer> memo = new HashMap<>();
+
+    protected int fib(int n) {
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+
+        if (memo.containsKey(n)) return memo.get(n);
+
+        int el = fib(n - 1) + fib(n - 2);
+
+        memo.put(n, el);
+
+        return el;
+    }
+
+    Map<Integer, Integer> memoSteps = new HashMap<>();
+
+    protected int climbStairs(int n) {
+        if (memoSteps.containsKey(n)) return memoSteps.get(n);
+
+        if (n == 0) {
+            return 1;
+        } else if (n < 0) return 0;
+
+
+        int count = climbStairs(n - 1) + climbStairs(n - 2);
+
+        memoSteps.put(n, count);
+
+        return count;
+    }
+
+    protected double myPow(double x, int n) {
+        if (x == 0) return 0;
+        if (n == 0) return 1;
+
+        long nl = n;
+        if (n < 0) {
+            x = 1 / x;
+            nl = -nl;
+        }
+
+        return helpMyPow(x, nl, 1);
+    }
+
+    private double helpMyPow(double x, long n, double result) {
+        if (n == 0) return result;
+
+        if (n % 2 == 0) {
+            return helpMyPow(x * x, n / 2, result);  // Если n чётное
+        } else {
+            return helpMyPow(x, n - 1, result * x);  // Если n нечётное
+        }
+    }
+
+    protected ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode listMerge = new ListNode(0); // Создаем заголовок для нового списка
+        helpMergeList(list1, list2, listMerge);
+        return listMerge.next; // Возвращаем результат, пропуская заголовок
+    }
+
+    private void helpMergeList(ListNode list1, ListNode list2, ListNode list3) {
+        // Если один из списков пуст, соединяем оставшийся список
+        if (list1 == null) {
+            list3.next = list2;
+            return;
+        }
+        if (list2 == null) {
+            list3.next = list1;
+            return;
+        }
+
+        // Сравниваем значения и рекурсивно продолжаем с оставшимися элементами
+        if (list1.val <= list2.val) {
+            list3.next = list1; // Присоединяем list1 к результату
+            helpMergeList(list1.next, list2, list3.next); // Рекурсивный вызов
+        } else {
+            list3.next = list2; // Присоединяем list2 к результату
+            helpMergeList(list1, list2.next, list3.next); // Рекурсивный вызов
+        }
+    }
+
+    protected int kthGrammar(int n, int k) {
+        return helpKthGrammar(n, k, 0);
+    }
+
+    private int helpKthGrammar(int n, int k, int currentVal) {
+        if (n == 1) return currentVal;
+
+        int halfCol = (int) Math.pow(2, n - 1) / 2;
+
+        if (k > halfCol) {
+            int nextRootVal = currentVal == 0 ? 1 : 0;
+            return helpKthGrammar(n - 1, k - halfCol, nextRootVal);
+        } else {
+            int nextRootVal = currentVal == 0 ? 0 : 1;
+            return helpKthGrammar(n - 1, k, nextRootVal);
+        }
+    }
+
+    protected int recursion(int n, int k) {
+        // First row will only have one symbol '0'.
+        if (n == 1) {
+            return 0;
+        }
+
+        int totalElements = (int) Math.pow(2, (n - 1));
+        int halfElements = totalElements / 2;
+
+        // If the target is present in the right half, we switch to the respective left half symbol.
+        if (k > halfElements) {
+            return 1 - recursion(n, k - halfElements);
+        }
+
+        // Otherwise, we switch to the previous row.
+        return recursion(n - 1, k);
+    }
+
+    protected int kthGrammarV2(int n, int k) {
+        return recursion(n, k);
+    }
+
+    protected List<TreeNode> generateTrees(int n) {
+        Map<Pair<Integer, Integer>, List<TreeNode>> memo = new HashMap<>();
+        return helpGenerateTrees(1, n, memo);
+    }
+
+    private List<TreeNode> helpGenerateTrees(int start, int end, Map<Pair<Integer, Integer>, List<TreeNode>> memo) {
+        List<TreeNode> res = new ArrayList<>();
+        if (start > end) {
+            res.add(null);
+            return res;
+        }
+
+        Pair<Integer, Integer> pair = new Pair<>(start, end);
+        if (memo.containsKey(pair)) {
+            return memo.get(pair);
+        }
+
+        for (int i = start; i <= end; i++) {
+            List<TreeNode> leftSubTree = helpGenerateTrees(start, i - 1, memo);
+            List<TreeNode> rightSubTree = helpGenerateTrees(i + 1, end, memo);
+
+            for (TreeNode left : leftSubTree) {
+                for (TreeNode right : rightSubTree) {
+                    TreeNode root = new TreeNode(i, left, right);
+                    res.add(root);
+                }
+            }
+        }
+
+        memo.put(pair, res);
+        return res;
     }
 }
