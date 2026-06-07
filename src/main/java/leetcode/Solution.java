@@ -85,6 +85,36 @@ public class Solution {
         }));
     }
 
+    public String mergeAlternately(String word1, String word2) {
+        StringBuilder result = new StringBuilder();
+        int i = 0, j = 0;
+        while (i < word1.length() || j < word2.length()) {
+            if (i < word1.length()) result.append(word1.charAt(i++));
+            if (j < word2.length()) result.append(word2.charAt(j++));
+        }
+        return result.toString();
+    }
+
+    public String gcdOfStrings(String str1, String str2) {
+        int len1 = str1.length(), len2 = str2.length();
+        for (int i = Math.min(len1, len2); i >= 1; --i) {
+            if (valid(str1, str2, i)) {
+                return str1.substring(0, i);
+            }
+        }
+        return "";
+
+    }
+
+    public boolean valid(String str1, String str2, int baseLen) {
+        int len1 = str1.length(), len2 = str2.length();
+        if (len1 % baseLen > 0 || len2 % baseLen > baseLen) return false;
+        else {
+            String base = str1.substring(0, baseLen);
+            return str1.replace(base, "").isEmpty() && str2.replace(base, "").isEmpty();
+        }
+    }
+
     public List<List<Integer>> getSkylineDivideAndConquer(int[][] buildings) {
         if (buildings == null || buildings.length == 0) {
             return new ArrayList<>();
